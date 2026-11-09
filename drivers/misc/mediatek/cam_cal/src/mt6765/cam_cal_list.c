@@ -12,6 +12,8 @@ extern unsigned int mot_s5k4h7_read_region(struct i2c_client *client, unsigned i
 			unsigned char *data, unsigned int size);
 #endif
 struct stCAM_CAL_LIST_STRUCT g_camCalList[] = {
+	{TSPPH8A1408_HI846_SENSOR_ID, 0xA0, hi846_read_region, MAX_EEPROM_SIZE_16K},
+	{TCL0003BA_GC08A3_SENSOR_ID, 0xA0, gc08a3_read_region, MAX_EEPROM_SIZE_16K},
 	/*Below is commom sensor */
 	{MOT_TONGA_S5KJN1SQ_SENSOR_ID, 0xA0, Common_read_region, MAX_EEPROM_SIZE_16K},
 #ifdef MOT_TONGA_S5K4H7_MIPI_RAW

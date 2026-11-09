@@ -476,7 +476,7 @@ struct fuelgauge_temperature Fg_Temperature_Table[23] = {
 		{70, 2221}
 };
 #else
-struct FUELGAUGE_TEMPERATURE Fg_Temperature_Table[23] = {
+struct fuelgauge_temperature Fg_Temperature_Table[23] = {
 		{-40, 195652},
 		{-35, 148171},
 		{-30, 113347},

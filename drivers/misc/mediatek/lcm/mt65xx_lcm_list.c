@@ -21,6 +21,20 @@ enum LCM_DSI_MODE_CON lcm_dsi_mode;
 #define LCD_HW_ID_STATUS_ERROR  0x03
 
 struct LCM_DRIVER *lcm_driver_list[] = {
+// imported bora panels
+#if defined(BORA_FT8006S_COE_HD_VDO)
+    &bora_ft8006s_coe_hd_vdo_lcm_drv,
+#endif
+#if defined(BORA_GC7202_YKL_HD_VDO)
+    &bora_gc7202_ykl_hd_vdo_lcm_drv,
+#endif
+#if defined(BORA_NL9911C_TDT_HD_VDO)
+    &bora_nl9911c_tdt_hd_vdo_lcm_drv,
+#endif
+#if defined(BORA_GC7202H_YKL_HD_VDO)
+    &bora_gc7202h_ykl_hd_vdo_lcm_drv,
+#endif
+
 #if defined(HX83102P_WXGA_VDO_INCELL_BOE)
 	&hx83102p_wxga_vdo_incell_boe_lcm_drv,
 #endif

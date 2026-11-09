@@ -150,6 +150,12 @@
 #define MOT_MAUI_GC02M1_SENSOR_ID (0x02e0+1)
 #define MOT_MAUI_OV02B10_SENSOR_ID 0x002b
 //add maui sensor id end
+//add bora sensor id begin
+#define TCL0003BA_GC08A3_SENSOR_ID                    (0x08A3+4)
+#define TSPPH8A1408_HI846_SENSOR_ID                   (0x0846+1)
+#define SHN9F511B_GC5035_SENSOR_ID                    (0x5035)
+#define TSPPS5F2052_S5K5E9_SENSOR_ID                  (0x559b)
+//add bora sensor id end
 /*IMX*/
 #define IMX766_SENSOR_ID                        0x0766
 #define IMX499_SENSOR_ID                        0x0499
@@ -643,6 +649,12 @@
 #define SENSOR_DRVNAME_MOT_MAUI_GC02M1_MIPI_RAW "mot_maui_gc02m1_mipi_raw"
 #define SENSOR_DRVNAME_MOT_MAUI_OV02B10_MIPI_RAW "mot_maui_ov02b10_mipi_raw"
 //add maui sensor drvname end
+//add bora sensor drvname begin
+#define SENSOR_DRVNAME_TCL0003BA_GC08A3_MIPI_RAW      "tcl0003ba_gc08a3_mipi_raw"
+#define SENSOR_DRVNAME_TSPPH8A1408_HI846_MIPI_RAW     "tspph8a1408_hi846_mipi_raw"
+#define SENSOR_DRVNAME_SHN9F511B_GC5035_MIPI_RAW      "shn9f511b_gc5035_mipi_raw"
+#define SENSOR_DRVNAME_TSPPS5F2052_S5K5E9_MIPI_RAW    "tspps5f2052_s5k5e9_mipi_raw"
+//add bora sensor drvname end
 /******************************************************************************
  *
  ******************************************************************************/

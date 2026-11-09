@@ -24,7 +24,7 @@ static moto_product products_list[] = {
 /* use moto bootargs to get device name & radio parameters */
 static char *bootargs_str = NULL;
 
-static int mmi_get_bootarg_dt(char *key, char **value, char *prop, char *spl_flag)
+static int g4m_mmi_get_bootarg_dt(char *key, char **value, char *prop, char *spl_flag)
 {
 	const char *bootargs_tmp = NULL;
 	char *idx = NULL;
@@ -67,16 +67,16 @@ err:
 	return err;
 }
 
-int mmi_get_bootarg(char *key, char **value)
+int g4m_mmi_get_bootarg(char *key, char **value)
 {
 #ifdef CONFIG_BOOT_CONFIG
-	return mmi_get_bootarg_dt(key, value, "mmi,bootconfig", "\n");
+	return g4m_mmi_get_bootarg_dt(key, value, "mmi,bootconfig", "\n");
 #else
-	return mmi_get_bootarg_dt(key, value, "bootargs", " ");
+	return g4m_mmi_get_bootarg_dt(key, value, "bootargs", " ");
 #endif
 }
 
-void mmi_free_bootarg_res(void)
+void g4m_mmi_free_bootarg_res(void)
 {
 	kfree(bootargs_str);
 	bootargs_str = NULL;
@@ -90,19 +90,31 @@ void get_moto_config_file_name(char* name, WIFI_CFG_ENUM index)
 	int i = 0;
 	char *s;
 
-	if (mmi_get_bootarg("androidboot.device=", &s) == 0) {
+	if (g4m_mmi_get_bootarg("androidboot.device=", &s) == 0) {
 		memcpy(device, s, strlen(s));
 		DBGLOG(RLM, INFO, "[MOTO]bootargs get device: %s\n", device);
-		mmi_free_bootarg_res();
+		g4m_mmi_free_bootarg_res();
 	}
-	if (mmi_get_bootarg("androidboot.radio=", &s) == 0) {
+	if (g4m_mmi_get_bootarg("androidboot.radio=", &s) == 0) {
 		memcpy(radio, s, strlen(s));
 		DBGLOG(RLM, INFO, "[MOTO]bootargs get radio: %s\n", radio);
-		mmi_free_bootarg_res();
+		g4m_mmi_free_bootarg_res();
 	}
+
+    /*
+     * Only Moto products use per-device config files. When the Moto
+     * bootargs are absent (non-Moto board such as Bora_TF) leave the
+     * name empty so the caller falls back to the stock file names
+     * (wifi.cfg / txpowerctrl.cfg). Without this the empty device
+     * string matches the all-zero sentinel entry and yields ".cfg".
+     */
+    if (device[0] == '\0')
+        return;
 
     num = sizeof(products_list) / sizeof(moto_product);
     for (i = 0; i < num; i++) {
+        if ((products_list + i)->hw_device[0] == '\0')
+            break; /* sentinel */
         if (strncmp(device, (products_list + i)->hw_device, ARRAY_VALUE_MAX) == 0) {
             if (strncmp(radio, (products_list + i)->hw_radio, ARRAY_VALUE_MAX) == 0 ||
                 strncmp((products_list + i)->hw_radio, "all", ARRAY_VALUE_MAX) == 0) {

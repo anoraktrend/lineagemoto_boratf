@@ -4568,14 +4568,25 @@ int DSI_Send_ROI(enum DISP_MODULE_ENUM module, void *handle, unsigned int x,
 
 static void lcm_set_reset_pin(UINT32 value)
 {
-	if (!_is_lcm_cmd_mode(DISP_MODULE_DSI0)) {
+	long ret;
+
+	/*
+	 * On these boards the LCM reset is wired to a GPIO that is described
+	 * by the "lcm_rst_out0/1_gpio" pinctrl states (GPIO45 on Bora_TF),
+	 * while the MMSYS LCM_RST_B pad is not connected. The LK resets the
+	 * panel through the GPIO controller; if the kernel writes
+	 * DISP_REG_CONFIG_MMSYS_LCM_RST_B instead (as it did for video mode)
+	 * the panel never receives a reset pulse and stays black with the
+	 * backlight on after resume/recovery. Prefer the pinctrl GPIO states
+	 * and keep the register only as a fallback for DTS without them.
+	 */
+	if (value)
+		ret = disp_dts_gpio_select_state(DTS_GPIO_STATE_LCM_RST_OUT1);
+	else
+		ret = disp_dts_gpio_select_state(DTS_GPIO_STATE_LCM_RST_OUT0);
+
+	if (ret)
 		DSI_OUTREG32(NULL, DISP_REG_CONFIG_MMSYS_LCM_RST_B, value);
-	} else {
-		if (value)
-			disp_dts_gpio_select_state(DTS_GPIO_STATE_LCM_RST_OUT1);
-		else
-			disp_dts_gpio_select_state(DTS_GPIO_STATE_LCM_RST_OUT0);
-	}
 }
 
 static void lcm1_set_reset_pin(UINT32 value)
@@ -4759,10 +4770,26 @@ unsigned int DSI_dcs_read_lcm_reg_v3_wrapper_DSIDUAL(char *out,
 			out, cmds, len);
 }
 
-/* remove later */
 long lcd_enp_bias_setting(unsigned int value)
 {
 	long ret = 0;
+
+	if (value)
+		disp_dts_gpio_select_state(DTS_GPIO_STATE_LCD_BIAS_ENP1);
+	else
+		disp_dts_gpio_select_state(DTS_GPIO_STATE_LCD_BIAS_ENP0);
+
+	return ret;
+}
+
+long lcd_enn_bias_setting(unsigned int value)
+{
+	long ret = 0;
+
+	if (value)
+		disp_dts_gpio_select_state(DTS_GPIO_STATE_LCD_BIAS_ENN1);
+	else
+		disp_dts_gpio_select_state(DTS_GPIO_STATE_LCD_BIAS_ENN0);
 
 	return ret;
 }
@@ -4898,6 +4925,7 @@ int ddp_dsi_set_lcm_utils(enum DISP_MODULE_ENUM module,
 		(int (*)(unsigned int, unsigned char))mt_set_gpio_pull_enable;
 #else
 	utils->set_gpio_lcd_enp_bias = lcd_enp_bias_setting;
+	utils->set_gpio_lcd_enn_bias = lcd_enn_bias_setting;
 #endif
 #endif
 

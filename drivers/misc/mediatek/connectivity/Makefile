@@ -56,7 +56,7 @@ endif
 # for gen4m options
 export CONFIG_MTK_COMBO_WIFI_HIF=axi
 export MTK_COMBO_CHIP=CONNAC
-export BT_PLATFORM=6765
+export BT_PLATFORM=connac1x
 export WLAN_CHIP_ID=6765
 export MTK_ANDROID_WMT=y
 export MTK_ANDROID_EMI=y
@@ -67,6 +67,7 @@ export CFG_FM_CHIP=mt6631
 export CFG_FM_PLAT=mt6631
 
 obj-$(CONFIG_MTK_COMBO) += common/
+obj-$(CONFIG_MTK_CONNFEM) += connfem/
 obj-$(CONFIG_MTK_COMBO_WIFI) += wlan/adaptor/
 obj-$(CONFIG_MTK_COMBO_CHIP_CONSYS_6765) += wlan/core/gen4m/
 obj-$(CONFIG_MTK_COMBO_BT) += bt/wmt/

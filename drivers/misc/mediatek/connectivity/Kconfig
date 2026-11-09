@@ -468,6 +468,16 @@ config MTK_CONNSYS_DEDICATED_LOG_PATH
 	  2. The scope may include (but not limited) Wi-Fi firmware log,
 	     BT firmware log, GPS firmware log etc.
 
+config MTK_CONNFEM
+	bool "MediaTek Connsys Front-End-Module (FEM) driver"
+	depends on MTK_COMBO
+	default y
+	help
+	  Support for external connectivity front-end modules attached to
+	  the MediaTek connsys combo chip. The WLAN driver queries this
+	  driver for FEM/EPA-ELNA pin configuration. Required by the
+	  in-tree gen4m WLAN driver.
+
 config WLAN_DRV_BUILD_IN
 	bool "Build Wlan module in kernel"
 	help

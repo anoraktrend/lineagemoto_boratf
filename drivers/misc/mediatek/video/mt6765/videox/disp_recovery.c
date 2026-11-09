@@ -82,6 +82,12 @@ static unsigned int esd_check_mode;
 static unsigned int esd_check_enable;
 unsigned int esd_checking;
 static int te_irq;
+/* EXT TE EINT availability: only report ESD failures once the TE signal
+ * has actually been observed at least once, so boards without a working
+ * TE line degrade to "no ESD check" instead of a recovery storm.
+ */
+static bool te_irq_ok;
+static bool te_ever_seen;
 
 #if defined(CONFIG_MTK_DUAL_DISPLAY_SUPPORT) && \
 	(CONFIG_MTK_DUAL_DISPLAY_SUPPORT == 2)
@@ -241,6 +247,7 @@ static irqreturn_t _esd_check_ext_te_irq_handler(int irq, void *data)
 {
 	mmprofile_log_ex(ddp_mmp_get_events()->esd_vdo_eint,
 		MMPROFILE_FLAG_PULSE, 0, 0);
+	te_ever_seen = true;
 	atomic_set(&esd_ext_te_event, 1);
 	wake_up_interruptible(&esd_ext_te_wq);
 	return IRQ_HANDLED;
@@ -248,6 +255,9 @@ static irqreturn_t _esd_check_ext_te_irq_handler(int irq, void *data)
 
 void primary_display_switch_esd_mode(int mode)
 {
+	if (!te_irq_ok)
+		return;
+
 	if (mode == GPIO_EINT_MODE) {
 		/* Enable TE EINT */
 		enable_irq(te_irq);
@@ -262,13 +272,25 @@ int do_esd_check_eint(void)
 {
 	int ret = 0;
 
+	if (!te_irq_ok) {
+		DISPCHECK("[ESD]TE eint is not available, skip check\n");
+		return 0;
+	}
+
 	primary_display_switch_esd_mode(GPIO_EINT_MODE);
 
 	if (wait_event_interruptible_timeout(esd_ext_te_wq,
-		atomic_read(&esd_ext_te_event), HZ / 2) > 0)
+		atomic_read(&esd_ext_te_event), HZ / 2) > 0) {
 		ret = 0; /* esd check pass */
-	else
+	} else if (!te_ever_seen) {
+		/* TE never toggled: treat the TE line as not wired instead of
+		 * failing the panel and kicking off ESD recovery.
+		 */
+		DISPCHECK("[ESD]no TE seen yet, skip eint check\n");
+		ret = 0;
+	} else {
 		ret = 1; /* esd check fail */
+	}
 
 	atomic_set(&esd_ext_te_event, 0);
 
@@ -295,6 +317,23 @@ int do_esd_check_read(void)
 	int ret = 0;
 	struct cmdqRecStruct *qhandle;
 	disp_path_handle phandle = primary_get_dpmgr_handle();
+
+	/*
+	 * The VDO read stops DSI video mode, waits for
+	 * CMDQ_EVENT_MUTEX0_STREAM_EOF and then restarts DSI video mode.
+	 * That event is only raised while the path is streaming through the
+	 * mutex in direct-link mode; when idlemgr has parked the display in
+	 * decouple (DC) idle only CMDQ_EVENT_DISP_RDMA0_EOF is raised, so the
+	 * wait times out (or races the DC->DL switch) and ESD recovery then
+	 * wedges the display. Kick idlemgr out of idle first and keep it from
+	 * re-entering while the check is in flight.
+	 */
+	if (primary_display_is_video_mode()) {
+		primary_display_manual_lock();
+		esd_checking = 1;
+		primary_display_manual_unlock();
+		primary_display_idlemgr_kick((char *)__func__, 1);
+	}
 
 	/* 0.create esd check cmdq */
 	ret = cmdqRecCreate(CMDQ_SCENARIO_DISP_ESD_CHECK, &qhandle);
@@ -854,6 +893,7 @@ void primary_display_requset_eint(void)
 			DISPERR("[ESD]EINT IRQ LINE NOT AVAILABLE!\n");
 			return;
 		}
+		te_irq_ok = true;
 
 		/* 2.disable irq */
 		disable_irq(te_irq);

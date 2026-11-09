@@ -569,6 +569,15 @@ EXPORT_SYMBOL_GPL(mt_usb_disconnect_v1);
 	extern bool mtk_mt_pmic_get_vcdt(void);
 #endif
 
+static void mtk_usb_extcon_remove_connection(void *data)
+{
+	struct mtk_extcon_info *extcon = data;
+
+	device_connection_remove(&extcon->dev_conn);
+	kfree(extcon->dev_conn.endpoint[0]);
+	extcon->dev_conn.endpoint[0] = NULL;
+}
+
 static int mtk_usb_extcon_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
@@ -617,6 +626,19 @@ static int mtk_usb_extcon_probe(struct platform_device *pdev)
 	extcon->dev_conn.endpoint[1] = dev_name(extcon->dev);
 	extcon->dev_conn.id = "usb-role-switch";
 	device_connection_add(&extcon->dev_conn);
+
+	/*
+	 * The connection must be registered before usb_role_switch_get()
+	 * below so that the role switch can be looked up, but it has to be
+	 * torn down again if this probe defers or fails.  Otherwise devres
+	 * frees @extcon (and with it dev_conn) while the entry is still
+	 * linked in the global devcon_list, and the next probe retry then
+	 * corrupts that list (BUG at __list_add_valid).
+	 */
+	ret = devm_add_action_or_reset(dev, mtk_usb_extcon_remove_connection,
+				       extcon);
+	if (ret)
+		return ret;
 
 	extcon->role_sw = usb_role_switch_get(extcon->dev);
 	if (IS_ERR(extcon->role_sw)) {

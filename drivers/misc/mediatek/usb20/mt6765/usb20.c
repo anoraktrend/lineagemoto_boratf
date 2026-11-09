@@ -1098,7 +1098,7 @@ static ssize_t uartpath_show(struct device *dev,
 	return scnprintf(buf, PAGE_SIZE, "%x\n", var);
 }
 
-DEVICE_ATTR_RW(uartpath);
+DEVICE_ATTR_RO(uartpath);
 #endif
 
 #ifndef FPGA_PLATFORM

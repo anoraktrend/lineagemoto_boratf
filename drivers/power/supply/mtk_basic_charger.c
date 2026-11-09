@@ -78,7 +78,16 @@ static void select_cv(struct mtk_charger *info)
 		}
 
 	constant_voltage = info->data.battery_cv;
-        constant_voltage = info->mmi.target_fv;//TODO CHECK
+	/*
+	 * The Moto MMI charge profile may lower the float voltage.  It only
+	 * exists when the board supplies an mmi,mmi-temp-zones table; Bora_TF
+	 * does not, so target_fv stays 0.  Without the guard this replaces the
+	 * board CV (4.4 V from DT) with 0, which drives the charger to its
+	 * minimum CV (~3.86 V) and the battery never fills.  Follow stock and
+	 * only apply the MMI voltage when the table is present.
+	 */
+	if (info->mmi.temp_zones && info->mmi.target_fv > 0)
+		constant_voltage = info->mmi.target_fv;
 
 	info->setting.cv = constant_voltage;
 }
@@ -287,7 +296,17 @@ static bool select_charging_current_limit(struct mtk_charger *info,
 		}
 	}
 
-	pdata->charging_current_limit = ((info->mmi.target_fcc < 0) ? 0 : info->mmi.target_fcc);
+	/*
+	 * The Moto MMI charge profile overrides the charging current with
+	 * mmi,target_fcc.  That profile only exists when the board supplies an
+	 * mmi,mmi-temp-zones table; Bora_TF (like the stock 4.19 kernel) does
+	 * not.  Without the guard target_fcc stays 0 and this clobbers the
+	 * usb/ac charging current computed above with 0, so the battery never
+	 * charges.  Only apply the MMI override when the table is present.
+	 */
+	if (info->mmi.temp_zones)
+		pdata->charging_current_limit =
+			((info->mmi.target_fcc < 0) ? 0 : info->mmi.target_fcc);
 	info->mmi.target_usb = pdata->input_current_limit;
 
 	if (pdata->thermal_charging_current_limit != -1) {

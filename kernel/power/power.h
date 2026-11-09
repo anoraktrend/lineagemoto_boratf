@@ -249,9 +249,14 @@ extern int pm_test_level;
 #endif
 
 #ifdef CONFIG_SUSPEND_FREEZER
+extern bool pm_skip_freeze;	/* DEBUG: kernel/power/process.c */
+
 static inline int suspend_freeze_processes(void)
 {
 	int error;
+
+	if (pm_skip_freeze)
+		return 0;
 
 	error = freeze_processes();
 	/*

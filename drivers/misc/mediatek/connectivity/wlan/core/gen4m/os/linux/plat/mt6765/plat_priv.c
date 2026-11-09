@@ -71,13 +71,20 @@ void kalSetDrvEmiMpuProtection(phys_addr_t emiPhyBase, uint32_t offset,
 {
 	struct emi_region_info_t region_info;
 
-	DBGLOG(INIT, INFO, "emiPhyBase: 0x%x, offset: %u, size: %u\n",
+	/*
+	 * Region 24 matches the stock (TCL) wlan driver on Bora_TF; the
+	 * LK/ATF on this board keeps region 29 locked or reserved, so writes
+	 * there are silently dropped and the CONNSYS WIFI PDMA keeps hitting
+	 * EMI MPU violations on the reserved buffer. Log at ERROR level so
+	 * this is visible without raising the driver debug level.
+	 */
+	DBGLOG(INIT, ERROR, "emiPhyBase: 0x%x, offset: %u, size: %u\n",
 			emiPhyBase, offset, size);
 
 	/*set MPU for EMI share Memory */
 	region_info.start = emiPhyBase + offset;
 	region_info.end = emiPhyBase + offset + size - 1;
-	region_info.region = 29;
+	region_info.region = 24;
 	SET_ACCESS_PERMISSION(region_info.apc, LOCK, FORBIDDEN, FORBIDDEN,
 			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
 			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,

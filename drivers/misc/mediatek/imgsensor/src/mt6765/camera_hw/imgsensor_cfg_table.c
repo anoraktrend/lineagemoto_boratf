@@ -862,6 +862,67 @@ struct IMGSENSOR_HW_POWER_SEQ sensor_power_sequence[] = {
 		},
 	},
 #endif
+#if defined(TSPPH8A1408_HI846_MIPI_RAW)
+	{
+		SENSOR_DRVNAME_TSPPH8A1408_HI846_MIPI_RAW,
+		{
+			{PDN, Vol_Low, 1},
+			{RST, Vol_Low, 1},
+			{DOVDD, Vol_1800, 1},
+			{DVDD, Vol_1200, 1},
+			{AVDD, Vol_2800, 1},
+			{SensorMCLK, Vol_High, 2},
+			{PDN, Vol_High, 2},
+			{RST, Vol_High, 2},
+		},
+	},
+#endif
+#if defined(TSPPS5F2052_S5K5E9_MIPI_RAW)
+	{
+		SENSOR_DRVNAME_TSPPS5F2052_S5K5E9_MIPI_RAW,
+		{
+			{PDN, Vol_Low, 1},
+			{RST, Vol_Low, 1},
+			{DVDD, Vol_1200, 0},
+			{AVDD, Vol_2800, 0},
+			{DOVDD, Vol_1800, 0},
+			{SensorMCLK, Vol_High, 2},
+			{PDN, Vol_High, 2},
+			{RST, Vol_High, 2},
+		},
+	},
+#endif
+#if defined(TCL0003BA_GC08A3_MIPI_RAW)
+	{
+		SENSOR_DRVNAME_TCL0003BA_GC08A3_MIPI_RAW,
+		{
+			{PDN, Vol_Low, 0},
+			{RST, Vol_Low, 1},
+			{SensorMCLK, Vol_High, 1},
+			{DOVDD, Vol_1800, 0},
+			{DVDD, Vol_1200, 0},
+			{AVDD, Vol_2800, 1},
+			//{AFVDD, Vol_2800, 5},
+			{PDN, Vol_High, 1},
+			{RST, Vol_High, 1},
+		},
+	},
+#endif
+#if defined(SHN9F511B_GC5035_MIPI_RAW)
+	{
+		SENSOR_DRVNAME_SHN9F511B_GC5035_MIPI_RAW,
+		{
+			{PDN, Vol_Low, 1},
+			{RST, Vol_Low, 1},
+			{DOVDD, Vol_1800, 1},
+			{DVDD, Vol_1200, 1},
+			{AVDD, Vol_2800, 1},
+			{SensorMCLK, Vol_High, 2},
+			{PDN, Vol_High, 2},
+			{RST, Vol_High, 2},
+		},
+	},
+#endif
 	/* add new sensor before this line */
 	{NULL,},
 };

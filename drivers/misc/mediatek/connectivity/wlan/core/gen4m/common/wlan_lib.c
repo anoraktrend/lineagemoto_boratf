@@ -3912,8 +3912,8 @@ void wlanoidClearTimeoutCheck(IN struct ADAPTER *prAdapter)
 #ifdef MOTO_UTAGS_MAC
 /* moto, reed wifi mac add from bootargs */
 #define MACSTRLEN 17
-extern int mmi_get_bootarg(char *key, char **value);
-extern void mmi_free_bootarg_res(void);
+extern int g4m_mmi_get_bootarg(char *key, char **value);
+extern void g4m_mmi_free_bootarg_res(void);
 
 static inline void strtomac(char * buf, unsigned char macaddr[6]) {
         if (strchr(buf, ':'))
@@ -3959,11 +3959,11 @@ uint32_t wlanUpdateNetworkAddress(IN struct ADAPTER
 
 #ifdef MOTO_UTAGS_MAC
         //Moto, read MACs from bootparams
-        if (mmi_get_bootarg("androidboot.wifimacaddr=", &s) == 0) {
+        if (g4m_mmi_get_bootarg("androidboot.wifimacaddr=", &s) == 0) {
             DBGLOG(INIT, ERROR, "%s: get wlan MACs bootargs = %s \n", __func__, s);
             memcpy(macStr, s, MACSTRLEN);
             utagMac = TRUE;
-            mmi_free_bootarg_res();
+            g4m_mmi_free_bootarg_res();
         }
         else {
             DBGLOG(INIT, ERROR, "%s: WIFI_MAC_BOOTARG not present in bootargs", __func__);

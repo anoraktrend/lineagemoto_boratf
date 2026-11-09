@@ -23,6 +23,7 @@
  *
  */
 #include <linux/init.h>		/* For init/exit macros */
+#include <linux/power/moto_chg_tcmd.h>
 #include <linux/module.h>	/* For MODULE_ marcros  */
 #include <linux/fs.h>
 #include <linux/device.h>

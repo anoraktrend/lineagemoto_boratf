@@ -28,6 +28,17 @@
  */
 unsigned int __read_mostly freeze_timeout_msecs = 20 * MSEC_PER_SEC;
 
+/*
+ * DEBUG ONLY: when set (cmdline pm_skip_freeze=1), suspend_freeze_processes()
+ * returns immediately so userspace (adbd) stays alive while the "devices"
+ * pm_test runs. This lets us read dmesg / ftrace live if a device suspend
+ * callback hangs. Default off: normal behavior is unchanged.
+ */
+bool pm_skip_freeze;
+module_param(pm_skip_freeze, bool, 0644);
+MODULE_PARM_DESC(pm_skip_freeze,
+	"Skip freezing userspace/kernel threads during suspend (debug)");
+
 static int try_to_freeze_tasks(bool user_only)
 {
 	struct task_struct *g, *p;

@@ -6,6 +6,7 @@
 #define pr_fmt(fmt) "<SITUATION> " fmt
 
 #include "situation.h"
+extern int sensor_cfg_to_hub(uint8_t sensorType, uint8_t *data, uint8_t count);
 /*moto add for sensor algo*/
 #ifdef CONFIG_MOTO_ALGO_PARAMS
 #include <SCP_sensorHub.h>

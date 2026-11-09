@@ -128,3 +128,13 @@ config TYPEC_PD_POWER_OFF_CHARGE_DELAY
 	help
 	  Say Yes to delay power off charging pd detect a few more seconds.
 	  If unsure, say N.
+
+config TCPC_WUSB3801
+	bool "IGC WUSB3801 Configuration Channel Controller for USB Type-C"
+	depends on TCPC_CLASS
+	default n
+	help
+	  Say Y to enable
+	  IGC WUSB3801
+	  TypeC port Controller
+	  Driver

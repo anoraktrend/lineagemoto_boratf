@@ -663,7 +663,7 @@ int pd_sc_set_mmi_target_fcc (struct mtk_pd *pd) {
 			pd_err("[%s]mtk_gauge is not rdy\n", __func__);
 			return -1;
 		}
-                if(pd != NULL)
+                if (pd != NULL && pinfo->mmi.temp_zones)
                         pd->sc_charger_current = ((pinfo->mmi.target_fcc < 0) ? 0 : pinfo->mmi.target_fcc);
 	}
         return ret;

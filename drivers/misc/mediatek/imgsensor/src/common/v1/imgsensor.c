@@ -50,6 +50,10 @@
 
 #define PDAF_DATA_SIZE 4096
 
+/* Camera module identity strings shared with OTP/device-info consumers */
+char CamNameF_module_name[256];
+char CamOTPF_module_name[256];
+
 #ifdef CONFIG_MTK_SMI_EXT
 static int current_mmsys_clk = MMSYS_CLK_MEDIUM;
 #endif
