@@ -12,6 +12,7 @@
 #include <linux/delay.h>
 #include <linux/io.h>
 #include <linux/spinlock.h>
+#include <linux/workqueue.h>
 #include <mtk_musb.h>
 #include <musb_core.h>
 #include "usb20.h"
@@ -239,6 +240,19 @@ bool usb_prepare_clock(bool enable)
 		atomic_inc(&clk_prepare_cnt);
 	} else {
 
+		/*
+		 * Never let the refcount go negative: an unbalanced unprepare
+		 * would keep usb_enable_clock() from ever enabling the clocks
+		 * again, leaving the controller dead (softconnect programmed,
+		 * but no bus activity and no interrupts) until reboot.
+		 */
+		if (atomic_read(&clk_prepare_cnt) <= 0) {
+			DBG(0, "drop unbalanced unprepare (cnt=%d)\n",
+				atomic_read(&clk_prepare_cnt));
+			mutex_unlock(&prepare_lock);
+			return 1;
+		}
+
 		clk_unprepare(musb_clk_top_sel);
 		clk_unprepare(musb_clk);
 
@@ -260,6 +274,31 @@ bool usb_prepare_clock(bool enable)
 
 static DEFINE_SPINLOCK(musb_reg_clock_lock);
 
+static void usb_clk_repair_work_fn(struct work_struct *work)
+{
+	int i;
+
+	DBG(0, "repairing USB clock refcount (cnt=%d)\n",
+		atomic_read(&clk_prepare_cnt));
+
+	/*
+	 * The prepare refcount can get out of balance when events race
+	 * (charger/Type-C notifications, idle timer, suspend/resume). Once
+	 * it is <= 0, usb_enable_clock() refuses to turn the clocks on, so
+	 * the softconnect is programmed into a controller without a clock:
+	 * the host never sees the device and the port stays dead until the
+	 * next reboot. Re-prepare until the counter is usable and then
+	 * really enable the clocks.
+	 */
+	for (i = 0; i < 8 && atomic_read(&clk_prepare_cnt) <= 0; i++)
+		usb_prepare_clock(true);
+
+	if (atomic_read(&clk_prepare_cnt) > 0)
+		usb_enable_clock(true);
+}
+
+static DECLARE_WORK(usb_clk_repair_work, usb_clk_repair_work_fn);
+
 bool usb_enable_clock(bool enable)
 {
 	static int count;
@@ -274,6 +313,12 @@ bool usb_enable_clock(bool enable)
 	spin_lock_irqsave(&musb_reg_clock_lock, flags);
 
 	if (unlikely(atomic_read(&clk_prepare_cnt) <= 0)) {
+		/*
+		 * Do not dead-end with the clocks off: queue a repair so the
+		 * controller can actually drive the bus again.
+		 */
+		if (enable)
+			schedule_work(&usb_clk_repair_work);
 		DBG_LIMIT(1, "clock not prepare");
 		goto exit;
 	}
