@@ -1,7 +1,4 @@
 // SPDX-License-Identifier: GPL-2.0
-/*
- * Copyright (c) 2019 MediaTek Inc.
- */
 
 #include "gpio.h"
 
@@ -13,10 +10,14 @@ struct GPIO_PINCTRL gpio_pinctrl_list_cam[GPIO_CTRL_STATE_MAX_NUM_CAM] = {
 	{"rst0"},
 	{"vcama_on"},
 	{"vcama_off"},
+	{"vcama1_on"},
+	{"vcama1_off"},
 	{"vcamd_on"},
 	{"vcamd_off"},
 	{"vcamio_on"},
 	{"vcamio_off"},
+	{"vcamaf_on"},
+	{"vcamaf_off"},
 };
 
 #ifdef MIPI_SWITCH
@@ -30,16 +31,15 @@ struct GPIO_PINCTRL gpio_pinctrl_list_switch[GPIO_CTRL_STATE_MAX_NUM_SWITCH] = {
 
 static struct GPIO gpio_instance;
 
-/*
- * reset all state of gpio to default value
- */
 static enum IMGSENSOR_RETURN gpio_release(void *pinstance)
 {
 	int    i, j;
+	struct platform_device *pplatform_dev = gpimgsensor_hw_platform_device;
 	struct GPIO            *pgpio         = (struct GPIO *)pinstance;
 	enum   IMGSENSOR_RETURN ret           = IMGSENSOR_RETURN_SUCCESS;
 	char *lookup_names = NULL;
 
+	pgpio->ppinctrl = devm_pinctrl_get(&pplatform_dev->dev);
 	if (IS_ERR(pgpio->ppinctrl))
 		return IMGSENSOR_RETURN_ERROR;
 	for (j = IMGSENSOR_SENSOR_IDX_MIN_NUM;
@@ -193,19 +193,6 @@ static enum IMGSENSOR_RETURN gpio_set(
 		    "%s : pinctrl err, PinIdx %d, Val %d\n",
 		    __func__,
 		    pin, pin_state);
-
-#ifdef CONFIG_MOTO_ELLIS_PROJECT_CAMERA
-	if(sensor_idx == 0 && IMGSENSOR_HW_PIN_RST == pin && GPIO_STATE_H == gpio_state )
-	{
-		ppinctrl_state =pgpio->ppinctrl_state_cam[1][((pin - IMGSENSOR_HW_PIN_PDN) << 1) + GPIO_STATE_H ];
-		if (ppinctrl_state == NULL || IS_ERR(ppinctrl_state) || pinctrl_select_state(pgpio->ppinctrl, ppinctrl_state))
-		     pr_err( "%s : GPIO_STATE_H pinctrl err, PinIdx %d, Val %d\n", __func__, pin, pin_state);
-		mdelay(1);
-		ppinctrl_state =pgpio->ppinctrl_state_cam[1][((pin - IMGSENSOR_HW_PIN_PDN) << 1) + GPIO_STATE_L];
-		if (ppinctrl_state == NULL || IS_ERR(ppinctrl_state) || pinctrl_select_state(pgpio->ppinctrl, ppinctrl_state))
-		     pr_err( "%s : GPIO_STATE_L pinctrl err, PinIdx %d, Val %d\n", __func__, pin, pin_state);
-	}
-#endif
 
 	mutex_unlock(&pinctrl_mutex);
 

@@ -1,7 +1,4 @@
 /* SPDX-License-Identifier: GPL-2.0 */
-/*
- * Copyright (c) 2019 MediaTek Inc.
- */
 
 #ifndef _KD_IMGSENSOR_DATA_H
 #define _KD_IMGSENSOR_DATA_H
@@ -17,9 +14,6 @@
 #include <linux/compat.h>
 #endif
 
-/*************************************************
- *
- **************************************************/
 /* In KERNEL mode,SHOULD be sync with mediatype.h */
 /* CHECK before remove or modify */
 /* #undef BOOL */
@@ -33,9 +27,6 @@
 #define MINT32 signed int
 #endif
 
-/************************************************************************
- *
- ************************************************************************/
 /*  */
 /* msdk_isp_exp.h */
 /*  */
@@ -57,6 +48,22 @@
 #define KDIMGSENSOR_INVOKE_DRIVER_0     (0)
 #define KDIMGSENSOR_INVOKE_DRIVER_1     (1)
 #endif
+
+/*Begin 20210719 liujunting add for jettatf camera otp */
+#define EEPROM_MODULEINFO_FLAG    (0x0001)
+#define EEPROM_MODULEINFO_VALUE   (0x0002)
+#define EEPROM_MODULEINFO_CHKSUM  (0x0004)
+#define EEPROM_AWB_FLAG           (0x0008)
+#define EEPROM_AWB_CHKSUM         (0x0010)
+#define EEPROM_LSC_FLAG           (0x0020)
+#define EEPROM_LSC_CHKSUM         (0x0040)
+#define EEPROM_AF_FLAG            (0x0080)
+#define EEPROM_AF_CHKSUM          (0x0100)
+#define EEPROM_PDAF_FLAG          (0x0200)
+#define EEPROM_PDAF_CHKSUM        (0x0400)
+#define EEPROM_AWB_GOLDEN_FLAG    (0x0800)
+#define EEPROM_AWB_GOLDEN_CHKSUM  (0x1000)
+/*end 20210719 liujunting add for jettatf camera otp*/
 
 enum {
 	BINNING_NONE = 0,
@@ -118,9 +125,6 @@ enum ACDK_CAMERA_OPERATION_MODE_ENUM {
 };
 
 
-/************************************************************************
- *
- ************************************************************************/
 
 /*  */
 #define MAX_NUM_OF_SUPPORT_SENSOR 32
@@ -293,6 +297,9 @@ enum ACDK_SENSOR_FEATURE_ENUM {
 	SENSOR_FEATURE_GET_ANA_GAIN_TABLE,
 	SENSOR_FEATURE_GET_FRAME_CTRL_INFO_BY_SCENARIO,
 	SENSOR_FEATURE_GET_AWB_REQ_BY_SCENARIO,
+/*Begin junyiliu for [Task][PASSAT-1876][passat MINI otp display] 20211122*/
+	SENSOR_FEATURE_GET_OTP_INFO,
+/*End junyiliu for [Task][PASSAT-1876][passat MINI otp display] 20211122*/
 	SENSOR_FEATURE_GET_STAGGER_TARGET_SCENARIO,
 	SENSOR_FEATURE_GET_STAGGER_MAX_EXP_TIME,
 	SENSOR_FEATURE_SEAMLESS_SWITCH,
@@ -427,65 +434,6 @@ enum SENSOR_DPCM_TYPE_ENUM {
 	COMP8_DI_37 = 0x37,
 	COMP8_DI_2A = 0x2A,
 };
-
-#define MAX_CALIBRATION_STRING 40
-
-typedef struct {
-	MINT32 mnf;
-	MINT32 awb;
-	MINT32 af;
-	MINT32 lsc;
-	MINT32 pdaf;
-	MINT32 dual;
-} mot_calibration_status_t;
-
-typedef struct {
-	char integrator[MAX_CALIBRATION_STRING];
-	char serial_number[MAX_CALIBRATION_STRING];
-	char table_revision[MAX_CALIBRATION_STRING];
-	char mot_part_number[MAX_CALIBRATION_STRING];
-	char actuator_id[MAX_CALIBRATION_STRING];
-	char lens_id[MAX_CALIBRATION_STRING];
-	char factory_id[MAX_CALIBRATION_STRING];
-	char manufacture_line[MAX_CALIBRATION_STRING];
-	char manufacture_date[MAX_CALIBRATION_STRING];
-} mot_calibration_mnf_t;
-
-typedef struct {
-	unsigned short awb_src_1_golden_r;
-	unsigned short awb_src_1_golden_gr;
-	unsigned short awb_src_1_golden_gb;
-	unsigned short awb_src_1_golden_b;
-	unsigned short awb_src_1_r;
-	unsigned short awb_src_1_gr;
-	unsigned short awb_src_1_gb;
-	unsigned short awb_src_1_b;
-	unsigned short awb_src_1_rg_ratio;
-	unsigned short awb_src_1_bg_ratio;
-	unsigned short awb_src_1_gr_gb_ratio;
-	unsigned short awb_src_1_golden_rg_ratio;
-	unsigned short awb_src_1_golden_bg_ratio;
-	unsigned short awb_src_1_golden_gr_gb_ratio;
-	unsigned short cie_src_1_ev;//big_y_source
-	unsigned short cie_src_1_u;//lil_x_source
-	unsigned short cie_src_1_v;//lil_y_source   from qcom
-} mot_calibration_3aInfo_t;
-
-typedef enum {
-	STATUS_OK,
-	STATUS_CRC_FAIL,
-	STATUS_LIMIT_FAIL
-} MotCalibrationStatus;
-
-typedef struct {
-        MotCalibrationStatus mnf_status;
-        MotCalibrationStatus af_status;
-        MotCalibrationStatus awb_status;
-        MotCalibrationStatus lsc_status;
-        MotCalibrationStatus pdaf_status;
-        MotCalibrationStatus dual_status;
-	mot_calibration_mnf_t mnf_cal_data;
-} mot_calibration_info_t;
 
 struct ACDK_SENSOR_RESOLUTION_INFO_STRUCT {
 	MUINT16 SensorPreviewWidth;
@@ -741,10 +689,6 @@ struct ACDK_SENSOR_INFO_STRUCT {
 	MUINT16 SensorVerFOV;
 	MUINT16 SensorOrientation;
 	MUINT32 SensorModuleID;
-        MUINT8 efuseID[64];
-	mot_calibration_status_t calibration_status;
-	mot_calibration_mnf_t mnf_calibration;
-	mot_calibration_3aInfo_t calibration_3aInfo;
 };
 
 #define ACDK_SENSOR_INFO2_STRUCT struct ACDK_SENSOR_INFO_STRUCT
@@ -1144,9 +1088,6 @@ struct IMGSENSOR_GPIO_STRUCT {
 	enum SENSOR_PHY_TYPE_ENUM SensroInterfaceType;
 	enum INDATA_FORMAT_ENUM SensorIndataformat;
 };
-/************************************************************************
- *
- ************************************************************************/
 
 #define MAXIMUM_NVRAM_CAMERA_SENSOR_FILE_SIZE_KERNEL       4096
 
@@ -1309,9 +1250,6 @@ struct COMPAT_ACDK_SENSOR_PRESOLUTION_STRUCT {
 #endif
 
 
-/************************************************************************
- *
- ************************************************************************/
 /*  */
 /* adoption to winmo driver files */
 /*  */
@@ -1348,27 +1286,7 @@ struct COMPAT_ACDK_SENSOR_PRESOLUTION_STRUCT {
 #define MSDK_SENSOR_DBG_IMGSENSOR_INFO_STRUCT \
 		struct ACDK_SENSOR_DBG_IMGSENSOR_STRUCT
 
-/* MSDK_SCENARIO_ID_ENUM => ACDK_SCENARIO_ID_ENUM
- * #define MSDK_SCENARIO_ID_CAMERA_PREVIEW  \
- *		ACDK_SCENARIO_ID_CAMERA_PREVIEW
- * #define MSDK_SCENARIO_ID_VIDEO_PREVIEW \
- *		ACDK_SCENARIO_ID_VIDEO_PREVIEW
- * #define MSDK_SCENARIO_ID_CAMERA_CAPTURE_JPEG \
- *		ACDK_SCENARIO_ID_CAMERA_CAPTURE_JPEG
- */
 #define MSDK_SENSOR_OPERATION_MODE_VIDEO ACDK_SENSOR_OPERATION_MODE_VIDEO
-/* #define MSDK_SCENARIO_ID_CAMERA_ZSD \
- *	ACDK_SCENARIO_ID_CAMERA_ZSD
- * #define MSDK_SCENARIO_ID_CAMERA_3D_PREVIEW \
- *	ACDK_SCENARIO_ID_CAMERA_3D_PREVIEW
- * #define MSDK_SCENARIO_ID_CAMERA_3D_CAPTURE \
- *	ACDK_SCENARIO_ID_CAMERA_3D_CAPTURE
- * #define MSDK_SCENARIO_ID_CAMERA_3D_VIDEO \
- *	ACDK_SCENARIO_ID_CAMERA_3D_VIDEO
- */
-/************************************************************************
- *
- ************************************************************************/
 struct MULTI_SENSOR_FUNCTION_STRUCT {
 	MUINT32 (*SensorOpen)(void);
 	MUINT32 (*SensorGetInfo)(MUINT32 *pScenarioId[2],
@@ -1413,6 +1331,16 @@ struct MULTI_SENSOR_FUNCTION_STRUCT2 {
 	MUINT32 (*SensorClose)(void);
 };
 
+#ifdef TCT_CAM_DRIVER_SUPPORT
+#define IMGSENSOR_HW_POWER_INFO_MAX	12
+struct IMGSENSOR_HW_MYPOWER_INFO {
+  MUINT32 pin;
+  MUINT32 pin_state_on;
+  MUINT32 pin_on_delay;
+  MUINT32 pin_state_off;
+  MUINT32 pin_off_delay;
+};
+#endif
 struct SENSOR_FUNCTION_STRUCT {
 	MUINT32 (*SensorOpen)(void);
 	MUINT32 (*SensorGetInfo)(enum MSDK_SCENARIO_ID_ENUM ScenarioId,
@@ -1431,6 +1359,13 @@ struct SENSOR_FUNCTION_STRUCT {
 	    MSDK_SENSOR_CONFIG_STRUCT *pSensorConfigData);
 
 	MUINT32 (*SensorClose)(void);
+
+#ifdef TCT_CAM_DRIVER_SUPPORT
+    char *name;
+    MUINT8 cameraIndex;
+    struct IMGSENSOR_HW_MYPOWER_INFO camera_power_info[IMGSENSOR_HW_POWER_INFO_MAX];
+#endif
+
 #if 1 /* isp suspend resume patch */
 	enum MSDK_SCENARIO_ID_ENUM ScenarioId;
 	MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT imageWindow;

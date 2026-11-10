@@ -1,7 +1,4 @@
 // SPDX-License-Identifier: GPL-2.0
-/*
- * Copyright (c) 2019 MediaTek Inc.
- */
 
 #include "regulator.h"
 //#include "upmu_common.h"
@@ -9,12 +6,31 @@
 
 #include <mt-plat/aee.h>
 
+/* Begin binchang.liang for camera sensor regulator 2021/11/10 */
+#include <asm/siginfo.h>
+/* End   binchang.liang for camera sensor regulator 2021/11/10 */
 
 #include <linux/rcupdate.h>
 #include <linux/sched.h>
+
+/* Begin binchang.liang for camera sensor regulator 2021/11/10 */
+#include <linux/regulator/driver.h>
+#include "../../../../../../../../drivers/regulator/internal.h"
+#include "kd_imgsensor.h"
+/* End   binchang.liang for camera sensor regulator 2021/11/10 */
+
 #include <linux/notifier.h>
 #include <linux/regulator/consumer.h>
 #include <linux/sched/signal.h>
+
+/* Begin binchang.liang for camera sensor regulator 2021/11/10 */
+//#include <mt-plat/upmu_common.h>
+#include <linux/mfd/mt6397/core.h>
+#include <linux/of.h>
+#include <linux/of_platform.h>
+#include <linux/regmap.h>
+#include <linux/mfd/mt6357/registers.h>
+/* End   binchang.liang for camera sensor regulator 2021/11/10 */
 
 static struct REGULATOR *preg_own;
 static bool Is_Notify_call[IMGSENSOR_SENSOR_IDX_MAX_NUM][REGULATOR_TYPE_MAX_NUM];
@@ -29,16 +45,13 @@ struct reg_oc_debug_t {
 	bool is_md_reg;
 };
 
-static struct reg_oc_debug_t reg_oc_debug[IMGSENSOR_SENSOR_IDX_MAX_NUM][REGULATOR_TYPE_MAX_NUM];
-static int regulator_status[IMGSENSOR_SENSOR_IDX_MAX_NUM][REGULATOR_TYPE_MAX_NUM] = {0};
-static void check_for_regulator_get(struct REGULATOR *preg, struct device *pdevice, enum IMGSENSOR_SENSOR_IDX sensor_idx, int index);
-static void check_for_regulator_put(struct REGULATOR *preg, enum IMGSENSOR_SENSOR_IDX sensor_idx, int index);
-static struct device_node *of_node_record = NULL;
-static DEFINE_MUTEX(g_regulator_state_mutex);
+static struct reg_oc_debug_t
+	reg_oc_debug[IMGSENSOR_SENSOR_IDX_MAX_NUM][REGULATOR_TYPE_MAX_NUM];
 
 static const int regulator_voltage[] = {
 	REGULATOR_VOLTAGE_0,
 	REGULATOR_VOLTAGE_1000,
+	REGULATOR_VOLTAGE_1050,
 	REGULATOR_VOLTAGE_1100,
 	REGULATOR_VOLTAGE_1200,
 	REGULATOR_VOLTAGE_1210,
@@ -52,11 +65,30 @@ static const int regulator_voltage[] = {
 
 struct REGULATOR_CTRL regulator_control[REGULATOR_TYPE_MAX_NUM] = {
 	{"vcama"},
+	{"vcama1"},
 	{"vcamd"},
 	{"vcamio"},
+	{"vcamaf"},
 };
 
+/* Begin binchang.liang for camera sensor regulator 2021/11/10 */
+static int flag=0;
+/* End   binchang.liang for camera sensor regulator 2021/11/10 */
+
+//begin 20200411 liujunting add for camera sensor regulator
+static int regulator_status[IMGSENSOR_SENSOR_IDX_MAX_NUM][REGULATOR_TYPE_MAX_NUM] = {0};
+static void check_for_regulator_get(struct REGULATOR *preg, struct device *pdevice, enum IMGSENSOR_SENSOR_IDX sensor_idx, int index);
+static void check_for_regulator_put(struct REGULATOR *preg, enum IMGSENSOR_SENSOR_IDX sensor_idx, int index);
+static struct device_node *of_node_record = NULL;
+static DEFINE_MUTEX(g_regulator_state_mutex);
+//end 20200411 liujunting add for camera sensor regulator
+
 static struct REGULATOR reg_instance;
+
+/* Begin binchang.liang for camera sensor regulator 2021/11/10 */
+/* file-local: avoid colliding with other drivers' g_regmap symbols */
+static struct regmap *g_regmap;
+/* End   binchang.liang for camera sensor regulator 2021/11/10 */
 
 static int regulator_oc_notify(
 	struct notifier_block *nb, unsigned long event, void *data)
@@ -86,26 +118,13 @@ static int regulator_oc_notify(
 enum IMGSENSOR_RETURN imgsensor_oc_interrupt(
 	enum IMGSENSOR_SENSOR_IDX sensor_idxU, bool enable)
 {
-	struct device *pdevice = gimgsensor_device;
 	int i = 0;
-	struct device_node *pof_node;
 	int ret = 0;
 	unsigned int sensor_idx = 0;
 
 	sensor_idx = sensor_idxU;
 
 	mutex_lock(&oc_mutex);
-	pr_debug("[regulator] %s idx=%d %s enable=%d\n",
-					__func__,
-					sensor_idx,
-					regulator_control[i].pregulator_type,
-					enable);
-
-	pof_node = pdevice->of_node;
-	pdevice->of_node =
-		of_find_compatible_node(NULL, NULL, "mediatek,camera_hw");
-	pr_debug("[regulator] %s pdevice->of_node=%p\n", __func__, pdevice->of_node);
-
 	if (enable) {
 		mdelay(5);
 		for (i = 0; i < REGULATOR_TYPE_MAX_NUM; i++) {
@@ -160,7 +179,6 @@ enum IMGSENSOR_RETURN imgsensor_oc_interrupt(
 
 	}
 	mutex_unlock(&oc_mutex);
-	pdevice->of_node = pof_node;
 	return IMGSENSOR_RETURN_SUCCESS;
 }
 
@@ -175,27 +193,54 @@ enum IMGSENSOR_RETURN imgsensor_oc_init(void)
 	return IMGSENSOR_RETURN_SUCCESS;
 }
 
-
 static enum IMGSENSOR_RETURN regulator_init(void *pinstance)
 {
 	struct REGULATOR *preg = (struct REGULATOR *)pinstance;
 	struct device            *pdevice;
 	struct device_node       *pof_node;
+
+	/* Begin binchang.liang for camera sensor regulator 2021/11/10 */
+	struct device_node       *pmic_node;
+	struct platform_device   *pmic_pdev;
+	struct mt6397_chip       *chip;
+	/* End   binchang.liang for camera sensor regulator 2021/11/10 */
+
 	int j, i, ret = 0;
 	char str_regulator_name[LENGTH_FOR_SNPRINTF];
-
 	pdevice  = gimgsensor_device;
 	pof_node = pdevice->of_node;
 	pdevice->of_node =
 		of_find_compatible_node(NULL, NULL, "mediatek,camera_hw");
-
+//begin 20200411 liujunting add for camera sensor regulator
+	of_node_record = pdevice->of_node;
+//end 20200411 liujunting add for camera sensor regulator
 	if (pdevice->of_node == NULL) {
 		pr_err("regulator get cust camera node failed!\n");
 		pdevice->of_node = pof_node;
 		return IMGSENSOR_RETURN_ERROR;
 	}
-
-	of_node_record = pdevice->of_node;
+	/* Begin binchang.liang for camera sensor regulator 2021/11/10 */
+	pmic_node = of_parse_phandle(pdevice->of_node, "pmic", 0);
+	if (!pmic_node)	{
+		pr_info("regulator get pmic_node fail!\n");
+		return IMGSENSOR_RETURN_ERROR;
+	}
+	pmic_pdev = of_find_device_by_node(pmic_node);
+	if (!pmic_pdev)	{
+		pr_info("get pmic_pdev fail!\n");
+		return IMGSENSOR_RETURN_ERROR;
+	}
+	chip = dev_get_drvdata(&(pmic_pdev->dev));
+	if (!chip)	{
+		pr_info("get chip fail!\n");
+		return IMGSENSOR_RETURN_ERROR;
+	}
+	g_regmap = chip->regmap;
+	if (IS_ERR_VALUE(g_regmap)) {
+		g_regmap = NULL;
+		pr_info("get g_regmap fail\n");
+	}
+	/* End binchang.liang for camera sensor regulator 2021/11/10 */
 
 	for (j = IMGSENSOR_SENSOR_IDX_MIN_NUM;
 		j < IMGSENSOR_SENSOR_IDX_MAX_NUM;
@@ -219,7 +264,9 @@ static enum IMGSENSOR_RETURN regulator_init(void *pinstance)
 					j, i, str_regulator_name);
 
 			atomic_set(&preg->enable_cnt[j][i], 0);
+//begin 20200411 liujunting add for camera sensor regulator
 			regulator_status[j][i] = 1;
+//end 20200411 liujunting add for camera sensor regulator
 		}
 	}
 	pdevice->of_node = pof_node;
@@ -261,18 +308,26 @@ static enum IMGSENSOR_RETURN regulator_set(
 	struct regulator     *pregulator;
 	struct REGULATOR     *preg = (struct REGULATOR *)pinstance;
 	int reg_type_offset;
+	/* Begin binchang.liang for camera sensor regulator 2021/11/10 */
+	int regval;
+	int regtemp;
+	/* End   binchang.liang for camera sensor regulator 2021/11/10 */
 	atomic_t             *enable_cnt;
-
-	if (pin > IMGSENSOR_HW_PIN_DOVDD   ||
+	/* Begin zhe.zuo for afvdd enable 20221009 */
+	if (pin > IMGSENSOR_HW_PIN_AFVDD   ||
+	/* End zhe.zuo for afvdd enable 20221009 */
 	    pin < IMGSENSOR_HW_PIN_AVDD    ||
 	    pin_state < IMGSENSOR_HW_PIN_STATE_LEVEL_0 ||
-	    pin_state >= IMGSENSOR_HW_PIN_STATE_LEVEL_HIGH)
+	    pin_state >= IMGSENSOR_HW_PIN_STATE_LEVEL_HIGH){
+		pr_err("regulator set fail! pin=%d pin_state=%d\n",pin,pin_state);
 		return IMGSENSOR_RETURN_ERROR;
+	}
 
 	reg_type_offset = REGULATOR_TYPE_VCAMA;
-	if(pin == IMGSENSOR_HW_PIN_DVDD){
-		check_for_regulator_get(preg, gimgsensor_device, sensor_idx, (reg_type_offset + pin - IMGSENSOR_HW_PIN_AVDD));
-	}
+
+//begin 20200411 liujunting add for camera sensor regulator
+	check_for_regulator_get(preg, gimgsensor_device, sensor_idx, (reg_type_offset + pin - IMGSENSOR_HW_PIN_AVDD));
+//end 20200411 liujunting add for camera sensor regulator
 
 	pregulator =
 		preg->pregulator[sensor_idx][
@@ -284,20 +339,79 @@ static enum IMGSENSOR_RETURN regulator_set(
 
 	if (pregulator) {
 		if (pin_state != IMGSENSOR_HW_PIN_STATE_LEVEL_0) {
-
-			if (regulator_set_voltage(
-				pregulator,
-				regulator_voltage[
-				    pin_state - IMGSENSOR_HW_PIN_STATE_LEVEL_0],
-				regulator_voltage[
-				 pin_state - IMGSENSOR_HW_PIN_STATE_LEVEL_0])) {
-
-				pr_err(
-				    "[regulator]fail to regulator_set_voltage, powertype:%d powerId:%d\n",
-				    pin,
-				    regulator_voltage[
-				   pin_state - IMGSENSOR_HW_PIN_STATE_LEVEL_0]);
+			/* Begin binchang.liang for camera sensor regulator 2021/11/10 */
+			// --------------------------  add for +- 50mV dvdd  --------------------------
+			unsigned int voltage = regulator_voltage[pin_state - IMGSENSOR_HW_PIN_STATE_LEVEL_0];
+			pr_info("tcl_setv  now  power up   sensor_idx=%d \n", sensor_idx);
+			if (voltage == REGULATOR_VOLTAGE_1050 ) {
+				pr_info(" tcl_setv sensor vcamd to %dmV\n", voltage/1000);
+				if(g_regmap)
+				{
+					regmap_write(g_regmap, MT6357_VCAMD_ANA_CON0,0x405);// 1050 mV
+					regmap_read(g_regmap, MT6357_VCAMD_ANA_CON0,&regval);
+					if (regval == 0x405){
+						flag =1;
+						pr_info("tcl_setv set vcamd to %dmV success!\n",
+								voltage/1000);
+					}
+				}
+				else
+					pr_info("g_regmap is null!\n");
 			}
+			/*
+			else if(voltage == REGULATOR_VOLTAGE_1150 ) {
+				pr_info(" tcl_setv ov48b2q sensor vcamd to %dmV\n", voltage/1000);
+				regmap_write(g_regmap, MT6357_VCAMD_ANA_CON0,0x505);// 1150 mV
+				regmap_read(g_regmap, MT6357_VCAMD_ANA_CON0,&regval);
+				if (regval == 0x505){
+					flag =1;
+					pr_info("tcl_setv set ov48b2q vcamd to %dmV success!\n",
+							voltage/1000);
+				}
+			}*/
+			// --------------------------  add for +- 50mV dvdd   end --------------------------
+			else
+			{
+				//fix steps in the dvdd voltage when  porwerdown . Remove the extra 50 mV
+				// --------------------------  Remove the extra 50 mV dvdd  --------------------------
+				if(flag == 0){
+					if(g_regmap)
+					{
+						//pr_info("Remove the extra 50 mV  sensor_idx=%d \n", sensor_idx);
+						regmap_read(g_regmap, MT6357_VCAMD_ANA_CON0,&regval);
+						//pr_info("MT6357_VCAMD_ANA_CON0 = %x \n",regval);
+						regtemp = regval & 0x0f;
+						if (regtemp != 0){
+							regmap_write(g_regmap, MT6357_VCAMD_ANA_CON0,regval&0xfff0);// last 4 bit to 0000
+							regmap_read(g_regmap, MT6357_VCAMD_ANA_CON0,&regval);
+							//pr_info("MT6357_VCAMD_ANA_CON0 = %x \n",regval);
+							if ((regval & 0x0f) == 0)
+							pr_info("Remove the extra 50 mV  success!\n");
+						}
+					}
+					else
+						pr_info("g_regmap is null!\n");
+				}
+				// --------------------------  Remove the extra 50 mV dvdd   end --------------------------
+				/* End binchang.liang for camera sensor regulator 2021/11/10 */
+
+				if (regulator_set_voltage(
+					pregulator,
+					regulator_voltage[
+					pin_state - IMGSENSOR_HW_PIN_STATE_LEVEL_0],
+					regulator_voltage[
+				 	pin_state - IMGSENSOR_HW_PIN_STATE_LEVEL_0])) {
+
+					pr_err(
+						"[regulator]fail to regulator_set_voltage, powertype:%d powerId:%d\n",
+						pin,
+						regulator_voltage[
+						pin_state - IMGSENSOR_HW_PIN_STATE_LEVEL_0]);
+				}
+			/* Begin binchang.liang for camera sensor regulator 2021/11/10 */
+			}
+			/* End   binchang.liang for camera sensor regulator 2021/11/10 */
+
 			if (regulator_enable(pregulator)) {
 				pr_err(
 				    "[regulator]fail to regulator_enable, powertype:%d powerId:%d\n",
@@ -305,10 +419,17 @@ static enum IMGSENSOR_RETURN regulator_set(
 				    regulator_voltage[
 				   pin_state - IMGSENSOR_HW_PIN_STATE_LEVEL_0]);
 
+//begin 20200411 liujunting add for camera sensor regulator
+			        check_for_regulator_put(preg, sensor_idx, (reg_type_offset + pin - IMGSENSOR_HW_PIN_AVDD));
+//end 20200411 liujunting add for camera sensor regulator
+
 				return IMGSENSOR_RETURN_ERROR;
 			}
 			atomic_inc(enable_cnt);
 		} else {
+			/* Begin binchang.liang for camera sensor regulator 2021/11/10 */
+			flag=0;
+			/* End   binchang.liang for camera sensor regulator 2021/11/10 */
 			if (regulator_is_enabled(pregulator)) {
 				/*pr_debug("[regulator]%d is enabled\n", pin);*/
 
@@ -316,12 +437,19 @@ static enum IMGSENSOR_RETURN regulator_set(
 					pr_err(
 					    "[regulator]fail to regulator_disable, powertype: %d\n",
 					    pin);
+
+//begin 20200411 liujunting add for camera sensor regulator
+			        check_for_regulator_put(preg, sensor_idx, (reg_type_offset + pin - IMGSENSOR_HW_PIN_AVDD));
+//end 20200411 liujunting add for camera sensor regulator
+
 					return IMGSENSOR_RETURN_ERROR;
 				}
 			}
-			if(pin == IMGSENSOR_HW_PIN_DVDD){
-				check_for_regulator_put(preg, sensor_idx, (reg_type_offset + pin - IMGSENSOR_HW_PIN_AVDD));
-			}
+
+//begin 20200411 liujunting add for camera sensor regulator
+			check_for_regulator_put(preg, sensor_idx, (reg_type_offset + pin - IMGSENSOR_HW_PIN_AVDD));
+//end 20200411 liujunting add for camera sensor regulator
+
 			atomic_dec(enable_cnt);
 		}
 	} else {
@@ -349,39 +477,77 @@ enum IMGSENSOR_RETURN imgsensor_hw_regulator_open(
 	return IMGSENSOR_RETURN_SUCCESS;
 }
 
+//begin 20200411 liujunting add for camera sensor regulator
+//#if 0
 static void check_for_regulator_get(struct REGULATOR *preg, struct device *pdevice, enum IMGSENSOR_SENSOR_IDX sensor_idx, int index)
 {
 	struct device_node *pof_node;
 	char str_regulator_name[LENGTH_FOR_SNPRINTF];
 
+	if (!preg || !pdevice) {
+		pr_err("Fatal: Null ptr.preg:%pK,pdevice:%pK\n", preg, pdevice);
+		return;
+	}
+
+	if (sensor_idx >= IMGSENSOR_SENSOR_IDX_MAX_NUM || index >= REGULATOR_TYPE_MAX_NUM ) {
+		pr_err("[%s]Invalid sensor_idx:%d regulator_idx: %d\n", __func__, sensor_idx, index);
+		return;
+	}
+
 	mutex_lock(&g_regulator_state_mutex);
 	if(regulator_status[sensor_idx][index]==0)
 	{
-		snprintf(str_regulator_name,
-			sizeof(str_regulator_name),
-			"cam%d_%s",
-			sensor_idx,
-			regulator_control[index].pregulator_type);
-
 		pof_node = pdevice->of_node;
 		pdevice->of_node = of_node_record;
-		preg->pregulator[sensor_idx][index] = regulator_get_optional(pdevice, str_regulator_name);
+
+		snprintf(str_regulator_name, sizeof(str_regulator_name), "cam%d_%s", sensor_idx, 
+                        regulator_control[index].pregulator_type);
+
+		preg->pregulator[sensor_idx][index] = regulator_get(pdevice, str_regulator_name);
+
 		pdevice->of_node = pof_node;
+
 		regulator_status[sensor_idx][index] = 1;
-		pr_info("regulator_dbg regulator_get %s, of_node:%p\n", str_regulator_name, of_node_record);
+		//pr_err("regulator_dbg regulator_get %s, of_node:%p\n", regulator_control[index].pregulator_type, of_node_record);
 	}
 	mutex_unlock(&g_regulator_state_mutex);
+	return;
 }
 
 static void check_for_regulator_put(struct REGULATOR *preg, enum IMGSENSOR_SENSOR_IDX sensor_idx, int index)
 {
+	//struct device_node *pof_node;
+	//char str_regulator_name[LENGTH_FOR_SNPRINTF];
+
+	if (!preg) {
+		pr_err("Fatal: Null ptr\n");
+		return;
+	}
+
+	if (sensor_idx >= IMGSENSOR_SENSOR_IDX_MAX_NUM || index >= REGULATOR_TYPE_MAX_NUM ) {
+		pr_err("[%s]Invalid sensor_idx:%d regulator_idx: %d\n", __func__, sensor_idx, index);
+		return;
+	}
+
 	mutex_lock(&g_regulator_state_mutex);
 	if(regulator_status[sensor_idx][index]==1)
 	{
+		//pof_node = pdevice->of_node;
+		//pdevice->of_node = of_node_record;
+
+		//snprintf(str_regulator_name, sizeof(str_regulator_name), "cam%d_%s", sensor_idx, 
+                        //regulator_control[index].pregulator_type);
+
+		//preg->pregulator[sensor_idx][index] = regulator_get(pdevice, str_regulator_name);
 		regulator_put(preg->pregulator[sensor_idx][index]);
-		preg->pregulator[sensor_idx][index] = NULL;
+                preg->pregulator[sensor_idx][index] = NULL;
+
+		//pdevice->of_node = pof_node;
 		regulator_status[sensor_idx][index]=0;
-		pr_info("regulator_dbg regulator_put cam%d index=%d\n", sensor_idx, index);
+		//pr_err("regulator_dbg regulator_put %s\n", regulator_control[index].pregulator_type);
 	}
 	mutex_unlock(&g_regulator_state_mutex);
+	return;
 }
+//#endif
+//end 20200411 liujunting add for camera sensor regulator

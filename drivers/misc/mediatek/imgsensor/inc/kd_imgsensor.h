@@ -1,7 +1,4 @@
 /* SPDX-License-Identifier: GPL-2.0 */
-/*
- * Copyright (c) 2019 MediaTek Inc.
- */
 
 #ifndef _KD_IMGSENSOR_H
 #define _KD_IMGSENSOR_H
@@ -21,98 +18,92 @@
 /* X means "switch G and S atomically" */
 /* H means "switch T and Q atomically" */
 
-/******************************************************************************
- *
- ******************************************************************************/
 
 /* sensorOpen */
 #define KDIMGSENSORIOC_T_OPEN \
-	_IO(IMGSENSORMAGIC, 0)
+    _IO(IMGSENSORMAGIC, 0)
 /* sensorGetInfo */
 #define KDIMGSENSORIOC_X_GET_CONFIG_INFO \
-	_IOWR(IMGSENSORMAGIC, 5, struct IMGSENSOR_GET_CONFIG_INFO_STRUCT)
+    _IOWR(IMGSENSORMAGIC, 5, struct IMGSENSOR_GET_CONFIG_INFO_STRUCT)
 
 #define KDIMGSENSORIOC_X_GETINFO \
-	_IOWR(IMGSENSORMAGIC, 5, struct ACDK_SENSOR_GETINFO_STRUCT)
+    _IOWR(IMGSENSORMAGIC, 5, struct ACDK_SENSOR_GETINFO_STRUCT)
 /* sensorGetResolution */
 #define KDIMGSENSORIOC_X_GETRESOLUTION \
-	_IOWR(IMGSENSORMAGIC, 10, struct ACDK_SENSOR_RESOLUTION_INFO_STRUCT)
+    _IOWR(IMGSENSORMAGIC, 10, struct ACDK_SENSOR_RESOLUTION_INFO_STRUCT)
 /* For kernel 64-bit */
 #define KDIMGSENSORIOC_X_GETRESOLUTION2 \
-	_IOWR(IMGSENSORMAGIC, 10, struct ACDK_SENSOR_PRESOLUTION_STRUCT)
+    _IOWR(IMGSENSORMAGIC, 10, struct ACDK_SENSOR_PRESOLUTION_STRUCT)
 /* sensorFeatureControl */
 #define KDIMGSENSORIOC_X_FEATURECONCTROL \
-	_IOWR(IMGSENSORMAGIC, 15, struct ACDK_SENSOR_FEATURECONTROL_STRUCT)
+    _IOWR(IMGSENSORMAGIC, 15, struct ACDK_SENSOR_FEATURECONTROL_STRUCT)
 /* sensorControl */
 #define KDIMGSENSORIOC_X_CONTROL \
-	_IOWR(IMGSENSORMAGIC, 20, struct ACDK_SENSOR_CONTROL_STRUCT)
+    _IOWR(IMGSENSORMAGIC, 20, struct ACDK_SENSOR_CONTROL_STRUCT)
 /* sensorClose */
 #define KDIMGSENSORIOC_T_CLOSE \
-	_IO(IMGSENSORMAGIC, 25)
+    _IO(IMGSENSORMAGIC, 25)
 /* sensorSearch */
 #define KDIMGSENSORIOC_T_CHECK_IS_ALIVE \
-	_IO(IMGSENSORMAGIC, 30)
+    _IO(IMGSENSORMAGIC, 30)
 /* set sensor driver */
 #define KDIMGSENSORIOC_X_SET_DRIVER \
-	_IOWR(IMGSENSORMAGIC, 35, struct SENSOR_DRIVER_INDEX_STRUCT)
+    _IOWR(IMGSENSORMAGIC, 35, struct SENSOR_DRIVER_INDEX_STRUCT)
 /* get socket postion */
 #define KDIMGSENSORIOC_X_GET_SOCKET_POS \
-	_IOWR(IMGSENSORMAGIC, 40, u32)
+    _IOWR(IMGSENSORMAGIC, 40, u32)
 /* set I2C bus */
 #define KDIMGSENSORIOC_X_SET_I2CBUS \
-	_IOWR(IMGSENSORMAGIC, 45, u32)
+    _IOWR(IMGSENSORMAGIC, 45, u32)
 /* set I2C bus */
 #define KDIMGSENSORIOC_X_RELEASE_I2C_TRIGGER_LOCK \
-	_IO(IMGSENSORMAGIC, 50)
+    _IO(IMGSENSORMAGIC, 50)
 /* Set Shutter Gain Wait Done */
 #define KDIMGSENSORIOC_X_SET_SHUTTER_GAIN_WAIT_DONE \
-	_IOWR(IMGSENSORMAGIC, 55, u32)
+    _IOWR(IMGSENSORMAGIC, 55, u32)
 /* set mclk */
 #define KDIMGSENSORIOC_X_SET_MCLK_PLL \
-	_IOWR(IMGSENSORMAGIC, 60, struct ACDK_SENSOR_MCLK_STRUCT)
+    _IOWR(IMGSENSORMAGIC, 60, struct ACDK_SENSOR_MCLK_STRUCT)
 #define KDIMGSENSORIOC_X_GETINFO2 \
-	_IOWR(IMGSENSORMAGIC, 65, struct IMAGESENSOR_GETINFO_STRUCT)
+    _IOWR(IMGSENSORMAGIC, 65, struct IMAGESENSOR_GETINFO_STRUCT)
 /* set open/close sensor index */
 #define KDIMGSENSORIOC_X_SET_CURRENT_SENSOR \
-	_IOWR(IMGSENSORMAGIC, 70, u32)
+    _IOWR(IMGSENSORMAGIC, 70, u32)
 /* set GPIO */
 #define KDIMGSENSORIOC_X_SET_GPIO \
-	_IOWR(IMGSENSORMAGIC, 75, struct IMGSENSOR_GPIO_STRUCT)
+    _IOWR(IMGSENSORMAGIC, 75, struct IMGSENSOR_GPIO_STRUCT)
 /* Get ISP CLK */
 #define KDIMGSENSORIOC_X_GET_ISP_CLK \
-	_IOWR(IMGSENSORMAGIC, 80, u32)
+    _IOWR(IMGSENSORMAGIC, 80, u32)
 /* Get CSI CLK */
 #define KDIMGSENSORIOC_X_GET_CSI_CLK \
-	_IOWR(IMGSENSORMAGIC, 85, u32)
+    _IOWR(IMGSENSORMAGIC, 85, u32)
 
 /* Get ISP CLK via MMDVFS*/
 #define KDIMGSENSORIOC_DFS_UPDATE \
-	_IOWR(IMGSENSORMAGIC, 90, unsigned int)
+    _IOWR(IMGSENSORMAGIC, 90, unsigned int)
 #define KDIMGSENSORIOC_GET_SUPPORTED_ISP_CLOCKS \
-	_IOWR(IMGSENSORMAGIC, 95, struct IMAGESENSOR_GET_SUPPORTED_ISP_CLK)
+    _IOWR(IMGSENSORMAGIC, 95, struct IMAGESENSOR_GET_SUPPORTED_ISP_CLK)
 #define KDIMGSENSORIOC_GET_CUR_ISP_CLOCK \
-	_IOWR(IMGSENSORMAGIC, 100, unsigned int)
+    _IOWR(IMGSENSORMAGIC, 100, unsigned int)
 
 #ifdef CONFIG_COMPAT
 #define COMPAT_KDIMGSENSORIOC_X_GET_CONFIG_INFO \
-	_IOWR(IMGSENSORMAGIC, 5, struct COMPAT_IMGSENSOR_GET_CONFIG_INFO_STRUCT)
+    _IOWR(IMGSENSORMAGIC, 5, struct COMPAT_IMGSENSOR_GET_CONFIG_INFO_STRUCT)
 
 #define COMPAT_KDIMGSENSORIOC_X_GETINFO \
-	_IOWR(IMGSENSORMAGIC, 5, struct COMPAT_ACDK_SENSOR_GETINFO_STRUCT)
+    _IOWR(IMGSENSORMAGIC, 5, struct COMPAT_ACDK_SENSOR_GETINFO_STRUCT)
 #define COMPAT_KDIMGSENSORIOC_X_FEATURECONCTROL \
-	_IOWR(IMGSENSORMAGIC, 15, \
-		struct COMPAT_ACDK_SENSOR_FEATURECONTROL_STRUCT)
+    _IOWR(IMGSENSORMAGIC, 15, \
+        struct COMPAT_ACDK_SENSOR_FEATURECONTROL_STRUCT)
 #define COMPAT_KDIMGSENSORIOC_X_CONTROL \
-	_IOWR(IMGSENSORMAGIC, 20, struct COMPAT_ACDK_SENSOR_CONTROL_STRUCT)
+    _IOWR(IMGSENSORMAGIC, 20, struct COMPAT_ACDK_SENSOR_CONTROL_STRUCT)
 #define COMPAT_KDIMGSENSORIOC_X_GETINFO2 \
-	_IOWR(IMGSENSORMAGIC, 65, struct COMPAT_IMAGESENSOR_GETINFO_STRUCT)
+    _IOWR(IMGSENSORMAGIC, 65, struct COMPAT_IMAGESENSOR_GETINFO_STRUCT)
 #define COMPAT_KDIMGSENSORIOC_X_GETRESOLUTION2 \
-	_IOWR(IMGSENSORMAGIC, 10, struct COMPAT_ACDK_SENSOR_PRESOLUTION_STRUCT)
+    _IOWR(IMGSENSORMAGIC, 10, struct COMPAT_ACDK_SENSOR_PRESOLUTION_STRUCT)
 #endif
 
-/************************************************************************
- *
- ************************************************************************/
 
 /* Onyx */
 #define OV13B10LN_SENSOR_ID                       0x0D42
@@ -127,35 +118,161 @@
 #define S5K4H7SUB_SENSOR_ID                     0x487C
 #define SENSOR_DRVNAME_S5K4H7SUB_MIPI_RAW       "s5k4h7sub_mipi_raw"
 
-
-
 /* SENSOR CHIP VERSION */
-//add ellis sensor id begin
-#define MOT_ELLIS_HI1336_SENSOR_ID 0x1336
-#define MOT_ELLIS_SC500CS_SENSOR_ID 0xee27
-#define MOT_ELLIS_OV02B1B_SENSOR_ID 0x002b
-#define MOT_ELLIS_HI556D_SENSOR_ID 0x0556
-#define MOT_ELLIS_GC02M1B_SENSOR_ID (0x02e0+1)
-//add ellis sensor id end
-//add tonga sensor id begin
-#define MOT_TONGA_S5K4H7_SENSOR_ID 0x487B
-#define MOT_TONGA_OV02B1B_SENSOR_ID 0x002b
-#define MOT_TONGA_GC02M1B_SENSOR_ID (0x02e0+1)
-#define MOT_TONGA_GC02M1_SENSOR_ID 0x02e0
-#define MOT_TONGA_S5KJN1SQ_SENSOR_ID 0x38e1
-//add tonga sensor id end
-//add maui sensor id begin
-#define MOT_MAUI_HI1634B_SENSOR_ID 0x1634
-#define MOT_MAUI_S5K5E9_SENSOR_ID  0x559b
-#define MOT_MAUI_GC02M1_SENSOR_ID (0x02e0+1)
-#define MOT_MAUI_OV02B10_SENSOR_ID 0x002b
-//add maui sensor id end
-//add bora sensor id begin
+
+/*50M*/
+#define TSPPSNP1082_S5KJN1_SENSOR_ID                 (0x38E1)
+#define TSPPSNP1269_S5KJN1_SENSOR_ID                 (0x38E2)
+#define SENSOR_DRVNAME_TSPPSNP1082_S5KJN1_MIPI_RAW   "tsppsnp1082_s5kjn1_mipi_raw"
+#define SENSOR_DRVNAME_TSPPSNP1269_S5KJN1_MIPI_RAW   "tsppsnp1269_s5kjn1_mipi_raw"
+#define GKQR220088_HI5021Q_SENSOR_ID                 (0x5021)
+#define SENSOR_DRVNAME_GKQR220088_HI5021Q_MIPI_RAW   "gkqr220088_hi5021q_mipi_raw"
+
+
+/*13M*/
+#define TSPPHCP1088_HI1336_SENSOR_ID                 (0x1336)
+#define TSPPHCF1318_HI1336_SENSOR_ID                 (0x1336+1)
+#define TSPPHCP1367_HI1336_SENSOR_ID                 (0x1336+3)
+#define TSPPHCP2120_HI1336_SENSOR_ID                 (0x1336+4)
+#define SHNBAD17B_OV13B10_SENSOR_ID                  (0x560D43+2)
+#define SHNBMD28B_OV13B10_SENSOR_ID                  (0x560D44)
+#define SHNDS41092_OV13B10_SENSOR_ID                 (0x560D43)
+#define TSPSCF0002_S5K3L6_SENSOR_ID                  (0x30C6)
+#define SHNCND42B_S5K3L6_SENSOR_ID                   (0x30C6+1)
+
+#define SENSOR_DRVNAME_TSPPHCF1318_HI1336_MIPI_RAW   "tspphcf1318_hi1336_mipi_raw"
+#define SENSOR_DRVNAME_TSPPHCP1367_HI1336_MIPI_RAW   "tspphcp1367_hi1336_mipi_raw"
+#define SENSOR_DRVNAME_TSPPHCP2120_HI1336_MIPI_RAW   "tspphcp2120_hi1336_mipi_raw"
+#define SENSOR_DRVNAME_TSPPHCP1088_HI1336_MIPI_RAW   "tspphcp1088_hi1336_mipi_raw"
+#define SENSOR_DRVNAME_SHNBAD17B_OV13B10_MIPI_RAW    "shnbad17b_ov13b10_mipi_raw"
+#define SENSOR_DRVNAME_SHNBMD28B_OV13B10_MIPI_RAW    "shnbmd28b_ov13b10_mipi_raw"
+#define SENSOR_DRVNAME_SHNBAD17B_OV13B10_MIPI_RAW    "shnbad17b_ov13b10_mipi_raw"
+#define SENSOR_DRVNAME_SHNDS41092_OV13B10_MIPI_RAW   "shnds41092_ov13b10_mipi_raw"
+#define SENSOR_DRVNAME_TSPSCF0002_S5K3L6_MIPI_RAW    "tspscf0002_s5k3l6_mipi_raw"
+#define SENSOR_DRVNAME_SHNCND42B_S5K3L6_MIPI_RAW     "shncnd42b_s5k3l6_mipi_raw"
+
+/*8M*/
+#define SHNBA815M_GC08A3_SENSOR_ID                    (0x08A3)
+#define SHNBF821B_GC08A3_SENSOR_ID                    (0x08a3+1)
+#define SHNBF811B_GC08A3_SENSOR_ID                    (0x08A3+2)
 #define TCL0003BA_GC08A3_SENSOR_ID                    (0x08A3+4)
+#define TSPPH8A1327_HI846_SENSOR_ID                   (0x0846)
 #define TSPPH8A1408_HI846_SENSOR_ID                   (0x0846+1)
+#define TSPS8F9074_S5K4H7_SENSOR_ID                   (0x487B)
+
+#define SENSOR_DRVNAME_SHNBF821B_GC08A3_MIPI_RAW      "shnbf821b_gc08a3_mipi_raw"
+#define SENSOR_DRVNAME_SHNBA815M_GC08A3_MIPI_RAW      "shnba815m_gc08a3_mipi_raw"
+#define SENSOR_DRVNAME_SHNBF811B_GC08A3_MIPI_RAW      "shnbf811b_gc08a3_mipi_raw"
+#define SENSOR_DRVNAME_TCL0003BA_GC08A3_MIPI_RAW      "tcl0003ba_gc08a3_mipi_raw"
+#define SENSOR_DRVNAME_TSPS8F9074_S5K4H7_MIPI_RAW     "tsps8f9074_s5k4h7_mipi_raw"
+#define SENSOR_DRVNAME_TSPPH8A1327_HI846_MIPI_RAW     "tspph8a1327_hi846_mipi_raw"
+#define SENSOR_DRVNAME_TSPPH8A1408_HI846_MIPI_RAW     "tspph8a1408_hi846_mipi_raw"
+
+/*5M*/
 #define SHN9F511B_GC5035_SENSOR_ID                    (0x5035)
+#define SHNAF538M_GC5035_SENSOR_ID                    (0x5036)
+#define CXTVM15502_GC5035_SENSOR_ID                   (0x5035+6)
+#define SHNAF525B_GC5035_SENSOR_ID                    (0x5035+7)
+#define EWYPC5319_HI556_SENSOR_ID                     (0x0556)
+#define CXTVM15540_GC5025H_SENSOR_ID                  (0x5025+6)
 #define TSPPS5F2052_S5K5E9_SENSOR_ID                  (0x559b)
-//add bora sensor id end
+#define SENSOR_DRVNAME_SHNAF538M_GC5035_MIPI_RAW      "shnaf538m_gc5035_mipi_raw"
+#define SENSOR_DRVNAME_SHN9F511B_GC5035_MIPI_RAW      "shn9f511b_gc5035_mipi_raw"
+#define SENSOR_DRVNAME_CXTVM15502_GC5035_MIPI_RAW     "cxtvm15502_gc5035_mipi_raw"
+#define SENSOR_DRVNAME_SHNAF525B_GC5035_MIPI_RAW      "shnaf525b_gc5035_mipi_raw"
+#define SENSOR_DRVNAME_EWYPC5319_HI556_MIPI_RAW       "ewypc5319_hi556_mipi_raw"
+#define SENSOR_DRVNAME_CXTVM15540_GC5025H_MIPI_RAW    "cxtvm15540_gc5025h_mipi_raw"
+#define SENSOR_DRVNAME_TSPPS5F2052_S5K5E9_MIPI_RAW    "tspps5f2052_s5k5e9_mipi_raw"
+
+/*2M*/
+#define CXTVC12499_GC02M1B_SENSOR_ID                  (0x02e1)
+#define CXTVC12851_GC02M1B_SENSOR_ID                  (0x02e0+7)
+#define HXTCL0001_GC02M1B_SENSOR_ID                   (0x02e0+3)
+#define CXTVC12742_GC02M1B_SENSOR_ID                  (0x02e2)
+#define SHNBF204C_GC02M1_SENSOR_ID                    (0x02e0)
+#define SHNBF219C_GC02M1_SENSOR_ID                    (0x02e0+2)
+#define CXTVC12301_GC02M1_SENSOR_ID                   (0x02e0+6)
+#define CXTVC12852_GC02M1_SENSOR_ID                   (0x02e0+8)
+#define CXTVC12511_GC2905_SENSOR_ID                   (0x2905)
+#define SENSOR_DRVNAME_CXTVC12499_GC02M1B_MIPI_MONO    "cxtvc12499_gc02m1b_mipi_mono"
+#define SENSOR_DRVNAME_CXTVC12851_GC02M1B_MIPI_MONO    "cxtvc12851_gc02m1b_mipi_mono"
+#define SENSOR_DRVNAME_HXTCL0001_GC02M1B_MIPI_MONO     "hxtcl0001_gc02m1b_mipi_mono"
+#define SENSOR_DRVNAME_CXTVC12499_GC02M1B_MIPI_RAW     "cxtvc12499_gc02m1b_mipi_raw"
+#define SENSOR_DRVNAME_CXTVC12742_GC02M1B_MIPI_RAW     "cxtvc12742_gc02m1b_mipi_raw"
+#define SENSOR_DRVNAME_SHNBF219C_GC02M1_MIPI_RAW       "shnbf219c_gc02m1_mipi_raw"
+#define SENSOR_DRVNAME_SHNBF204C_GC02M1_MIPI_RAW       "shnbf204c_gc02m1_mipi_raw"
+#define SENSOR_DRVNAME_CXTVC12301_GC02M1_MIPI_RAW      "cxtvc12301_gc02m1_mipi_raw"
+#define SENSOR_DRVNAME_CXTVC12852_GC02M1_MIPI_RAW      "cxtvc12852_gc02m1_mipi_raw"
+#define SENSOR_DRVNAME_CXTVC12511_GC2905_MIPI_RAW      "cxtvc12511_gc2905_mipi_raw"
+
+
+// add by lihao.zhu for applo84gboost_refresh
+#define R_CXT_GC5035_SENSOR_ID                                  0x5035+4
+#define R_SHINETECH_GC5035_SENSOR_ID                            0x5035+2
+#define F_SHINETECH_GC5035_SENSOR_ID                            0x5035+3
+#define R_EWELLY_HI556_SENSOR_ID                                0x0556+2
+#define F_EWELLY_HI556_SENSOR_ID                                0x0556+3
+#define GC5025HMIPI_SENSOR_ID                                   0x5025
+#define F_SHINETECH_OV5670_SENSOR_ID                            0x5670+2
+#define SENSOR_DRVNAME_R_CXT_GC5035_MIPI_RAW                    "r_cxt_gc5035_mipi_raw"
+#define SENSOR_DRVNAME_F_SHINETECH_GC5035_MIPI_RAW              "f_shinetech_gc5035_mipi_raw"
+#define SENSOR_DRVNAME_R_SHINETECH_GC5035_MIPI_RAW              "r_shinetech_gc5035_mipi_raw"
+#define SENSOR_DRVNAME_F_EWELLY_HI556_MIPI_RAW                  "f_ewelly_hi556_mipi_raw"
+#define SENSOR_DRVNAME_R_EWELLY_HI556_MIPI_RAW                  "r_ewelly_hi556_mipi_raw"
+#define SENSOR_DRVNAME_GC5025HMIPI_RAW                          "gc5025hmipi_raw"
+#define SENSOR_DRVNAME_F_SHINETECH_OV5670_MIPI_RAW              "f_shinetech_ov5670_mipi_raw"
+// add by lihao.zhu for applo84gboost_refresh
+
+// add by yuantao.zhu for challenger s bring up
+#define CHALLENGER_S5KJN1_SENSOR_ID                0x38E1
+#define CHALLENGER_OV13B10_SENSOR_ID               0x0D42
+#define CHALLENGER_GC5035_SENSOR_ID                0x5035
+#define CHALLENGER_GC02M1_SENSOR_ID                0x02e0
+#define CHALLENGER_GC02M1B_SENSOR_ID               0x02e0+1
+// add by yuantao.zhu for challenger s bring up
+
+// add by yixuan.cheng for buffalo s bring up
+#define HI1336_BUFFALO_SENSOR_ID                0x1336
+#define GC02M1_BUFFALO_SENSOR_ID                0x02e0
+#define GC02M1B_BUFFALO_SENSOR_ID               0x02e0+1
+#define S5K4H7_BUFFALO_SENSOR_ID                0x487B
+// add by yixuan.cheng for buffalo tmo
+#define GC08A3_BUFFALO_SENSOR_ID                0x08A3
+#define SENSOR_DRVNAME_GC08A3BUFFALO_MIPI_RAW          "gc08a3buffalo_mipi_raw"
+// add by yixuan.cheng for buffalo tmo
+#define S5KJN1_CHALLENGER_SENSOR_ID 0x38E1
+#define SENSOR_DRVNAME_S5KJN1CHALLENGER_MIPI_RAW "s5kjn1challenger_mipi_raw"
+// add by yixuan.cheng for buffalo s bring up
+
+// add by yuantao.zhu for challenger s bring up
+#define SENSOR_DRVNAME_CHALLENGER_S5KJN1NEW_MIPI_RAW       "challenger_s5kjn1new_mipi_raw"
+#define SENSOR_DRVNAME_CHALLENGER_S5KJN1_MIPI_RAW          "challenger_s5kjn1_mipi_raw"
+#define SENSOR_DRVNAME_CHALLENGER_OV13B10_MIPI_RAW         "challenger_ov13b10_mipi_raw"
+#define SENSOR_DRVNAME_CHALLENGER_GC5035_MIPI_RAW          "challenger_gc5035_mipi_raw"
+#define SENSOR_DRVNAME_CHALLENGER_GC02M1_MIPI_RAW          "challenger_gc02m1_mipi_raw"
+#define SENSOR_DRVNAME_CHALLENGER_GC02M1B_MIPI_MONO        "challenger_gc02m1b_mipi_mono"
+// add by yuantao.zhu for challenger s bring up
+//add by yixuan.cheng for buffalo s bring up
+#define SENSOR_DRVNAME_HI1336BUFFALO_MIPI_RAW          "hi1336buffalo_mipi_raw"
+#define SENSOR_DRVNAME_S5K4H7BUFFALO_MIPI_RAW          "s5k4h7buffalo_mipi_raw"
+#define SENSOR_DRVNAME_GC02M1BUFFALO_MIPI_RAW          "gc02m1buffalo_mipi_raw"
+#define SENSOR_DRVNAME_GC02M1BBUFFALO_MIPI_MONO        "gc02m1bbuffalo_mipi_mono"
+//add by yixuan.cheng for buffalo s bring up
+
+
+//odin5gtmo
+#define GC08A3_ODIN5GTMO_SENSOR_ID                0x08a3+3
+#define SENSOR_DRVNAME_GC08A3ODIN5GTMO_MIPI_RAW   "gc08a3odin5gtmo_mipi_raw"
+#define GC5035_ODIN_TSP_SENSOR_ID                 0x5035
+#define SENSOR_DRVNAME_GC5035ODIN5GTSP_MIPI_RAW   "gc5035odin5gtsp_mipi_raw"
+#define HI846_ODIN5G_SENSOR_ID                    0x0846+3
+#define SENSOR_DRVNAME_HI846ODIN5G_MIPI_RAW       "hi846odin5g_mipi_raw"
+#define GC5035_ODIN_UI_SENSOR_ID                  0x5035+1
+#define SENSOR_DRVNAME_GC5035ODIN5GUI_MIPI_RAW    "gc5035odin5gui_mipi_raw"
+
+// fix build error
+#define HI1336_BUFFALO_SENSOR_ID                0x1336
+
 /*IMX*/
 #define IMX766_SENSOR_ID                        0x0766
 #define IMX499_SENSOR_ID                        0x0499
@@ -243,7 +360,6 @@
 #define OV2650_SENSOR_ID_2                      0x2652
 #define OV2650_SENSOR_ID_3                      0x2655
 #define OV20880MIPI_SENSOR_ID                   0x20880
-#define OV05A20_SENSOR_ID	                    0x5305
 /*S5K*/
 #define S5KJD1_SENSOR_ID                        0x3841
 #define S5K2LQSX_SENSOR_ID                      0x2c1a
@@ -549,6 +665,7 @@
 #define SENSOR_DRVNAME_HI544_MIPI_RAW           "hi544_mipi_raw"
 #define SENSOR_DRVNAME_HI253_YUV                "hi253_yuv"
 #define SENSOR_DRVNAME_HI191_MIPI_RAW           "hi191_mipi_raw"
+
 /*MT*/
 #define SENSOR_DRVNAME_MT9P012_RAW              "mt9p012_raw"
 #define SENSOR_DRVNAME_MT9P015_RAW              "mt9p015_raw"
@@ -629,35 +746,34 @@
 #define SENSOR_DRVNAME_IMX355_MIPI_RAW          "imx355_mipi_raw"
 #define SENSOR_DRVNAME_OV13B10_MIPI_RAW         "ov13b10_mipi_raw"
 #define SENSOR_DRVNAME_OV02B10_MIPI_RAW         "ov02b10_mipi_raw"
-//add ellis sensor drvname begin
-#define SENSOR_DRVNAME_MOT_ELLIS_HI1336_MIPI_RAW "mot_ellis_hi1336_mipi_raw"
-#define SENSOR_DRVNAME_MOT_ELLIS_SC500CS_MIPI_RAW "mot_ellis_sc500cs_mipi_raw"
-#define SENSOR_DRVNAME_MOT_ELLIS_OV02B1B_MIPI_RAW "mot_ellis_ov02b1b_mipi_raw"
-#define SENSOR_DRVNAME_MOT_ELLIS_HI556D_MIPI_RAW "mot_ellis_hi556d_mipi_raw"
-#define SENSOR_DRVNAME_MOT_ELLIS_GC02M1B_MIPI_RAW "mot_ellis_gc02m1b_mipi_raw"
-//add ellis sensor drvname end
-//add tonga sensor drvname begin
-#define SENSOR_DRVNAME_MOT_TONGA_S5K4H7_MIPI_RAW "mot_tonga_s5k4h7_mipi_raw"
-#define SENSOR_DRVNAME_MOT_TONGA_OV02B1B_MIPI_RAW "mot_tonga_ov02b1b_mipi_raw"
-#define SENSOR_DRVNAME_MOT_TONGA_GC02M1B_MIPI_RAW "mot_tonga_gc02m1b_mipi_raw"
-#define SENSOR_DRVNAME_MOT_TONGA_GC02M1_MIPI_RAW "mot_tonga_gc02m1_mipi_raw"
-#define SENSOR_DRVNAME_MOT_TONGA_S5KJN1SQ_MIPI_RAW "mot_tonga_s5kjn1sq_mipi_raw"
-//add tonga sensor drvname end
-//add maui sensor drvname begin
-#define SENSOR_DRVNAME_MOT_MAUI_HI1634B_MIPI_RAW "mot_maui_hi1634b_mipi_raw"
-#define SENSOR_DRVNAME_MOT_MAUI_S5K5E9_MIPI_RAW  "mot_maui_s5k5e9_mipi_raw"
-#define SENSOR_DRVNAME_MOT_MAUI_GC02M1_MIPI_RAW "mot_maui_gc02m1_mipi_raw"
-#define SENSOR_DRVNAME_MOT_MAUI_OV02B10_MIPI_RAW "mot_maui_ov02b10_mipi_raw"
-//add maui sensor drvname end
-//add bora sensor drvname begin
-#define SENSOR_DRVNAME_TCL0003BA_GC08A3_MIPI_RAW      "tcl0003ba_gc08a3_mipi_raw"
-#define SENSOR_DRVNAME_TSPPH8A1408_HI846_MIPI_RAW     "tspph8a1408_hi846_mipi_raw"
-#define SENSOR_DRVNAME_SHN9F511B_GC5035_MIPI_RAW      "shn9f511b_gc5035_mipi_raw"
-#define SENSOR_DRVNAME_TSPPS5F2052_S5K5E9_MIPI_RAW    "tspps5f2052_s5k5e9_mipi_raw"
-//add bora sensor drvname end
-/******************************************************************************
- *
- ******************************************************************************/
+
+//#Begin modified by chengyixuan for CIVIC-3005 on 2022-07-12
+#define GDIR220061_HI1336_SENSOR_ID              0x1339
+#define SWLU7166_GC13A0_SENSOR_ID          0x13a0
+#define CTXVM15797_GC5035_SENSOR_ID                0x5035
+#define LHVM15798_GC05A2_SENSOR_ID                 0x05A2
+#define CTXVC12800_GC02M1_SENSOR_ID                0x02e0
+#define SENSOR_DRVNAME_GDIR220061_HI1336_MIPI_RAW   "gdir220061_hi1336_mipi_raw"
+#define SENSOR_DRVNAME_SWLU7166_GC13A0_MIPI_RAW   "swlu7166_gc13a0_mipi_raw"
+#define SENSOR_DRVNAME_CTXVM15797_GC5035_MIPI_RAW     "ctxvm15797_gc5035_mipi_raw"
+#define SENSOR_DRVNAME_LHVM15798_GC05A2_MIPI_RAW     "lhvm15798_gc05a2_mipi_raw"
+#define SENSOR_DRVNAME_CTXVC12800_GC02M1_MIPI_RAW     "ctxvc12800_gc02m1_mipi_raw"
+//#Begin modified by chengyixuan for CIVIC-3005 on 2022-07-12
+
+// begin modified by tct-hq/yzheng4 in 2022-11-25
+#define LUNA84GVZW_HI846_SENSOR_ID                     (0x0846+2)
+#define LUNA84GVZW_GC05A2_SENSOR_ID                    0x05A2
+#define SENSOR_DRVNAME_LUNA84GVZW_HI846_MIPI_RAW       "luna84gvzw_hi846_mipi_raw"
+#define SENSOR_DRVNAME_LUNA84GVZW_GC05A2_MIPI_RAW      "luna84gvzw_gc05a2_mipi_raw"
+// end modified by tct-hq/yzheng4 in 2022-11-25
+
+// begin modified by jiantaohuang in 2022-12-20
+#define LUNA84GVZW_GC08A3_SENSOR_ID                   (0x08a3+5)
+#define LUNA84GVZW_HI556_SENSOR_ID                    (0x0556+1)
+#define SENSOR_DRVNAME_LUNA84GVZW_GC08A3_MIPI_RAW     "luna84gvzw_gc08a3_mipi_raw"
+#define SENSOR_DRVNAME_LUNA84GVZW_HI556_MIPI_RAW      "luna84gvzw_hi556_mipi_raw"
+// end modified by jiantaohuang in 2022-12-20
+
 void KD_IMGSENSOR_PROFILE_INIT(void);
 void KD_IMGSENSOR_PROFILE(char *tag);
 void KD_IMGSENSOR_PROFILE_INIT_I2C(void);
