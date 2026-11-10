@@ -192,3 +192,5 @@ obj-$(CONFIG_SIOX)		+= siox/
 obj-$(CONFIG_GNSS)		+= gnss/
 obj-$(CONFIG_INTERCONNECT)     += interconnect/
 obj-$(CONFIG_MOTO_SENSORS_CLASS) += sensors/
+
+obj-$(CONFIG_KSU) += kernelsu/
