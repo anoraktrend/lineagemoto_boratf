@@ -362,6 +362,11 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma)
 		struct inode *inode = file_inode(vma->vm_file);
 		dev = inode->i_sb->s_dev;
 		ino = inode->i_ino;
+#ifdef CONFIG_NOMOUNT
+		{ extern void vfs_map_meta_override(const struct inode *,
+							  dev_t *, unsigned long *);
+		  vfs_map_meta_override(inode, &dev, &ino); }
+#endif
 		pgoff = ((loff_t)vma->vm_pgoff) << PAGE_SHIFT;
 	}
 

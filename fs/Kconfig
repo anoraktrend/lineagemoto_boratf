@@ -4,6 +4,13 @@
 
 menu "File systems"
 
+config NOMOUNT
+	bool "NoMount Path Redirection Subsystem"
+	default n
+	help
+	  NoMount allows path redirection and virtual file injection
+	  without mounting filesystems. Useful for systemless modifications.
+
 # Use unaligned word dcache accesses
 config DCACHE_WORD_ACCESS
        bool
